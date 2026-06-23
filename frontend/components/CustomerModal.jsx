@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export default function CustomerModal({
   editing,
+  onUpdate,
 }) {
   const [fullName, setFullName] =
     useState("");
@@ -82,9 +83,15 @@ export default function CustomerModal({
 
       {error && <p>{error}</p>}
 
-      <button onClick={handleSubmit}>
-        {editing ? "Update" : "Add Customer"}
-      </button>
+      <button
+  onClick={
+    editing
+      ? onUpdate
+      : handleSubmit
+  }
+>
+  {editing ? "Update" : "Add Customer"}
+</button>
     </div>
   );
 }

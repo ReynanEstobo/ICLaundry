@@ -1,6 +1,7 @@
 export default function CustomerActions({
   setShowModal,
   setEditing,
+  onDelete,
 }) {
   return (
     <>
@@ -22,7 +23,9 @@ export default function CustomerActions({
         Edit Customer
       </button>
 
-      <button>Delete</button>
+      <button onClick={onDelete}>
+  Delete
+</button>
     </>
   );
 }

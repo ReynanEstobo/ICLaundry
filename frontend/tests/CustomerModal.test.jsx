@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import CustomerModal from "../components/CustomerModal.jsx";
 import CustomerActions from "../components/CustomerActions.jsx";
@@ -29,32 +34,48 @@ describe("CustomerModal", () => {
     expect(notes).toBeInTheDocument();
   });
 
-  it("Should display Update and Delete action buttons", () => {
-    // Arrange
-    render(
-      <>
-        <CustomerModal editing />
-        <CustomerActions
-          setShowModal={() => {}}
-          setEditing={() => {}}
-        />
-      </>
-    );
+  it("Should trigger Update and Delete actions when buttons are clicked", () => {
+  // Arrange
+  const onUpdate = vi.fn();
+  const onDelete = vi.fn();
 
-    // Act
-    const update = screen.getByRole("button", {
+  render(
+    <>
+      <CustomerModal
+        editing
+        onUpdate={onUpdate}
+      />
+
+      <CustomerActions
+        setShowModal={() => {}}
+        setEditing={() => {}}
+        onDelete={onDelete}
+      />
+    </>
+  );
+
+  const update =
+    screen.getByRole("button", {
       name: "Update",
     });
 
-    const deleteButton =
-      screen.getByRole("button", {
-        name: "Delete",
-      });
+  const deleteButton =
+    screen.getByRole("button", {
+      name: "Delete",
+    });
 
-    // Assert
-    expect(update).toBeInTheDocument();
-    expect(deleteButton).toBeInTheDocument();
-  });
+  // Act
+  fireEvent.click(update);
+
+  fireEvent.click(deleteButton);
+
+  // Assert
+  expect(onUpdate)
+    .toHaveBeenCalled();
+
+  expect(onDelete)
+    .toHaveBeenCalled();
+});
 
   it("Should prevent submission when required fields are empty", () => {
   // Arrange
