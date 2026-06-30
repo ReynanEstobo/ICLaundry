@@ -50,75 +50,44 @@ describe("EditOrderModal", () => {
       .toBeInTheDocument();
   });
 
-  it("should allow user to edit client name", async () => {
-    // Arrange
-    const user = userEvent.setup();
+  it("should update the client name and call onUpdateOrder with the updated order", async () => {
+  // Arrange
+  const user = userEvent.setup();
+  const handleUpdate = vi.fn();
 
-    render(
-      <EditOrderModal
-        order={mockOrder}
-        onUpdateOrder={vi.fn()}
-        onClose={vi.fn()}
-      />
-    );
+  render(
+    <EditOrderModal
+      order={mockOrder}
+      onUpdateOrder={handleUpdate}
+      onClose={vi.fn()}
+    />
+  );
 
-    const clientInput =
-      screen.getByDisplayValue(
-        "Juan Dela Cruz"
-      );
+  const clientInput = screen.getByDisplayValue(
+    "Juan Dela Cruz"
+  );
 
-    // Act
-    await user.clear(
-      clientInput
-    );
+  const updateButton = screen.getByRole(
+    "button",
+    {
+      name: /update order/i,
+    }
+  );
 
-    await user.type(
-      clientInput,
-      "Maria Santos"
-    );
+  // Act
+  await user.clear(clientInput);
+  await user.type(
+    clientInput,
+    "Maria Santos"
+  );
+  await user.click(updateButton);
 
-    // Assert
-    expect(clientInput)
-      .toHaveValue(
-        "Maria Santos"
-      );
+  // Assert
+  expect(handleUpdate).toHaveBeenCalledWith({
+    ...mockOrder,
+    clientName: "Maria Santos",
   });
-
-  it("should call onUpdateOrder when Update button is clicked", async () => {
-    // Arrange
-    const user = userEvent.setup();
-
-    const handleUpdate =
-      vi.fn();
-
-    render(
-      <EditOrderModal
-        order={mockOrder}
-        onUpdateOrder={
-          handleUpdate
-        }
-        onClose={vi.fn()}
-      />
-    );
-
-    const updateButton =
-      screen.getByRole(
-        "button",
-        {
-          name: /update order/i,
-        }
-      );
-
-    // Act
-    await user.click(
-      updateButton
-    );
-
-    // Assert
-    expect(
-      handleUpdate
-    ).toHaveBeenCalled();
-  });
+});
 
   it("should call onClose when Cancel button is clicked", async () => {
     // Arrange
