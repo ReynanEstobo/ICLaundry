@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import "../components/orders-design.css";
+
 import SearchOrders from "../../components/SearchOrders";
 import StatusFilter from "../../components/StatusFilter";
 import NewOrderButton from "../../components/NewOrderButton";

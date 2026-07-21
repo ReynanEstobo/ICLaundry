@@ -1,6 +1,6 @@
 // frontend/src/components/OrderDetailsModal.jsx
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 import PaymentSection from "./PaymentSection";
@@ -14,6 +14,20 @@ const getOrderId = (order) => {
 const OrderDetailsModal = ({ order, onClose, onRefresh }) => {
   const [error, setError] = useState("");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && !isSubmittingPayment) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSubmittingPayment, onClose]);
 
   if (!order) {
     return null;

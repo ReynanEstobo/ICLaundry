@@ -1,6 +1,6 @@
 // frontend/src/components/NewOrderModal.jsx
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Minus, Plus, X } from "lucide-react";
 
 const BUNDLE_KG = 8;
@@ -17,6 +17,20 @@ const ADDONS = [
 ];
 
 const NewOrderModal = ({ onCreateOrder, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -148,7 +162,7 @@ const NewOrderModal = ({ onCreateOrder, onClose }) => {
             <h3>New Order</h3>
             <p>Fill in the details below</p>
           </div>
-          <button className="btn-icon" onClick={onClose}>
+          <button type="button" className="btn-icon" aria-label="Close" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
@@ -349,10 +363,10 @@ const NewOrderModal = ({ onCreateOrder, onClose }) => {
         </div>
 
         <div className="order-modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>
+          <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn btn-primary" onClick={handleSubmit}>
+          <button type="button" className="btn btn-primary" onClick={handleSubmit}>
             Create Order
           </button>
         </div>

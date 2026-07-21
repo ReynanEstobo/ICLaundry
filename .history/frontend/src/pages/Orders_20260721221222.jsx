@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import "./orders-design.css";
+
 import SearchOrders from "../../components/SearchOrders";
 import StatusFilter from "../../components/StatusFilter";
 import NewOrderButton from "../../components/NewOrderButton";
@@ -67,7 +69,10 @@ const Orders = () => {
   }, []);
 
   const hasOpenModal =
-    showNewModal || showEditModal || showDetailsModal || showPaymentModal;
+    showNewModal ||
+    showEditModal ||
+    showDetailsModal ||
+    showPaymentModal;
 
   useEffect(() => {
     if (!hasOpenModal) {
@@ -249,117 +254,121 @@ const Orders = () => {
   return (
     <div className="orders-page">
       <div className="orders-shell">
-        <div className="orders-header">
-          <div className="orders-heading">
-            <h1>Orders</h1>
+      <div className="orders-header">
+        <div className="orders-heading">
+          <h1>
+            Orders
+          </h1>
 
-            <p>Manage laundry orders, payments, and progress in one place.</p>
-          </div>
-
-          <NewOrderButton onClick={() => setShowNewModal(true)} />
+          <p>Manage laundry orders, payments, and progress in one place.</p>
         </div>
 
-        <div className="orders-toolbar">
-          <SearchOrders value={searchValue} onSearchChange={setSearchValue} />
+        <NewOrderButton onClick={() => setShowNewModal(true)} />
+      </div>
 
-          <StatusFilter
-            selectedStatus={selectedStatus}
-            onStatusChange={setSelectedStatus}
-          />
-        </div>
+      <div className="orders-toolbar">
+        <SearchOrders value={searchValue} onSearchChange={setSearchValue} />
 
-        {error && <p className="orders-error">{error}</p>}
-
-        <OrdersTable
-          orders={filteredOrders}
-          onView={handleViewOrder}
-          onEdit={(order) => {
-            setSelectedOrder(order);
-
-            setShowEditModal(true);
-          }}
-          onDelete={handleDeleteOrder}
-          onStatusChange={handleStatusChange}
+        <StatusFilter
+          selectedStatus={selectedStatus}
+          onStatusChange={setSelectedStatus}
         />
+      </div>
 
-        {showNewModal && (
-          <NewOrderModal
-            onClose={() => setShowNewModal(false)}
-            onCreateOrder={handleCreateOrder}
-          />
-        )}
+      {error && (
+        <p className="orders-error">
+          {error}
+        </p>
+      )}
 
-        {showEditModal && (
-          <EditOrderModal
-            order={selectedOrder}
-            onClose={() => {
-              setShowEditModal(false);
+      <OrdersTable
+        orders={filteredOrders}
+        onView={handleViewOrder}
+        onEdit={(order) => {
+          setSelectedOrder(order);
 
-              setSelectedOrder(null);
-            }}
-            onUpdateOrder={handleUpdateOrder}
-          />
-        )}
+          setShowEditModal(true);
+        }}
+        onDelete={handleDeleteOrder}
+        onStatusChange={handleStatusChange}
+      />
 
-        {showDetailsModal && (
-          <OrderDetailsModal
-            order={selectedOrder}
-            onClose={() => {
-              setShowDetailsModal(false);
+      {showNewModal && (
+        <NewOrderModal
+          onClose={() => setShowNewModal(false)}
+          onCreateOrder={handleCreateOrder}
+        />
+      )}
 
-              setSelectedOrder(null);
-            }}
-            onRefresh={loadOrders}
-          />
-        )}
+      {showEditModal && (
+        <EditOrderModal
+          order={selectedOrder}
+          onClose={() => {
+            setShowEditModal(false);
 
-        {showPaymentModal && paymentOrder && (
+            setSelectedOrder(null);
+          }}
+          onUpdateOrder={handleUpdateOrder}
+        />
+      )}
+
+      {showDetailsModal && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => {
+            setShowDetailsModal(false);
+
+            setSelectedOrder(null);
+          }}
+          onRefresh={loadOrders}
+        />
+      )}
+
+      {showPaymentModal && paymentOrder && (
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setShowPaymentModal(false);
+            setPaymentOrder(null);
+          }}
+        >
           <div
-            className="modal-overlay"
-            onClick={() => {
-              setShowPaymentModal(false);
-              setPaymentOrder(null);
-            }}
+            className="order-modal"
+            style={{ maxWidth: 520 }}
+            onClick={(event) => event.stopPropagation()}
           >
-            <div
-              className="order-modal"
-              style={{ maxWidth: 520 }}
-              onClick={(event) => event.stopPropagation()}
+            <div className="order-modal-body">
+            <h2 style={{ margin: "0 0 16px", fontSize: 22, fontWeight: 800 }}>
+              Complete Payment
+            </h2>
+
+            <PaymentSection
+              orderId={getOrderId(paymentOrder)}
+              paymentStatus={paymentOrder.payment_status}
+              amountPaid={paymentOrder.amount_paid}
+              remainingBalance={
+                Number(paymentOrder.total_price || 0) -
+                Number(paymentOrder.amount_paid || 0)
+              }
+              onSubmitPayment={handleCompletePayment}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowPaymentModal(false);
+
+                setPaymentOrder(null);
+              }}
+              className="btn btn-secondary"
+              style={{ width: "100%", marginTop: 12 }}
             >
-              <div className="order-modal-body">
-                <h2
-                  style={{ margin: "0 0 16px", fontSize: 22, fontWeight: 800 }}
-                >
-                  Complete Payment
-                </h2>
-
-                <PaymentSection
-                  orderId={getOrderId(paymentOrder)}
-                  paymentStatus={paymentOrder.payment_status}
-                  amountPaid={paymentOrder.amount_paid}
-                  remainingBalance={
-                    Number(paymentOrder.total_price || 0) -
-                    Number(paymentOrder.amount_paid || 0)
-                  }
-                  onSubmitPayment={handleCompletePayment}
-                />
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPaymentModal(false);
-
-                    setPaymentOrder(null);
-                  }}
-                  className="btn btn-secondary"
-                  style={{ width: "100%", marginTop: 12 }}
-                >
-                  Cancel
-                </button>
-              </div>
+              Cancel
+            </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
       </div>
     </div>
   );

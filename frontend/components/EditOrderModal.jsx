@@ -55,6 +55,20 @@ const getOrderId = (order) =>
   order?.id ?? order?.order_id ?? order?.uuid ?? order?._id ?? null;
 
 const EditOrderModal = ({ order, onUpdateOrder, onClose }) => {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -155,7 +169,7 @@ const EditOrderModal = ({ order, onUpdateOrder, onClose }) => {
             <h3>Edit Order</h3>
             <p>Order #{order.order_number}</p>
           </div>
-          <button className="btn-icon" onClick={onClose}>
+          <button type="button" className="btn-icon" aria-label="Close" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
