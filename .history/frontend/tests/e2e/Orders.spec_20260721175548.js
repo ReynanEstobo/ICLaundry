@@ -19,16 +19,16 @@ test.describe("Customer Management Workflow", () => {
     const timestamp = Date.now();
 
     const customer = {
-      name: `Playwright Customer ${timestamp}`,
+      name: `PW-CUSTOMER-${process.env.CI ? "CI" : "LOCAL"}-${timestamp}`,
 
       phone: `09${timestamp.toString().slice(-9)}`,
 
-      email: `playwright${timestamp}@gmail.com`,
+      email: `pw${timestamp}@gmail.com`,
 
       address: "Pooc, Balayan",
     };
 
-    const updatedName = `${customer.name} Updated`;
+    const updatedName = `${customer.name}-UPDATED`;
 
     await page.goto("/", {
       waitUntil: "networkidle",
@@ -54,13 +54,22 @@ test.describe("Customer Management Workflow", () => {
 
     await page.getByLabel("Address").fill(customer.address);
 
+    const createResponse = page.waitForResponse((response) => {
+      return (
+        response.url().includes("/api/customers") &&
+        response.request().method() === "POST"
+      );
+    });
+
     await page
       .getByRole("button", {
         name: /create customer/i,
       })
       .click();
 
-    await page.waitForTimeout(3000);
+    const customerResponse = await createResponse;
+
+    expect(customerResponse.ok()).toBeTruthy();
 
     await page.reload({
       waitUntil: "networkidle",
@@ -89,17 +98,33 @@ test.describe("Customer Management Workflow", () => {
 
     await page.getByLabel("Customer Name").fill(updatedName);
 
+    const updateResponse = page.waitForResponse((response) => {
+      return (
+        response.url().includes("/api/customers") &&
+        ["PUT", "PATCH"].includes(response.request().method())
+      );
+    });
+
     await page
       .getByRole("button", {
         name: /update customer/i,
       })
       .click();
 
-    await page.waitForTimeout(3000);
+    const updatedResponse = await updateResponse;
+
+    expect(updatedResponse.ok()).toBeTruthy();
 
     await page.reload({
       waitUntil: "networkidle",
     });
+
+    await page
+      .getByRole("button", {
+        name: /customers/i,
+      })
+      .click()
+      .catch(() => {});
 
     const updatedRow = page.locator("tr").filter({
       hasText: updatedName,
@@ -127,31 +152,32 @@ test.describe("Customer Management Workflow", () => {
 
 /**
  * =====================================================
- * ORDER MANAGEMENT END-TO-END TESTING
+ * ORDER MANAGEMENT WORKFLOW
  * =====================================================
  */
 
 test.describe("Order Management End-to-End Testing", () => {
   test.setTimeout(120000);
 
-  const timestamp = Date.now();
-
-  const customer = {
-    name: `Playwright Customer ${timestamp}`,
-
-    phone: `09${timestamp.toString().slice(-9)}`,
-
-    email: `playwright${timestamp}@gmail.com`,
-  };
-
-  const getOrderRow = (page) =>
-    page.locator("tbody tr").filter({
-      hasText: customer.name,
-    });
-
   test("should successfully complete the entire order workflow", async ({
     page,
   }) => {
+    const timestamp = Date.now();
+
+    const customer = {
+      name: `PW-ORDER-${process.env.CI ? "CI" : "LOCAL"}-${timestamp}`,
+
+      phone: `09${timestamp.toString().slice(-9)}`,
+
+      email: `order${timestamp}@gmail.com`,
+    };
+
+    const getOrderRow = () => {
+      return page.locator("tbody tr").filter({
+        hasText: customer.name,
+      });
+    };
+
     await page.goto("/", {
       waitUntil: "networkidle",
     });
@@ -184,11 +210,22 @@ test.describe("Order Management End-to-End Testing", () => {
 
     await page.getByPlaceholder("Amount Paid").fill("300");
 
+    const orderResponse = page.waitForResponse((response) => {
+      return (
+        response.url().includes("/api/orders") &&
+        response.request().method() === "POST"
+      );
+    });
+
     await page
       .getByRole("button", {
         name: /create order/i,
       })
       .click();
+
+    const createdOrder = await orderResponse;
+
+    expect(createdOrder.ok()).toBeTruthy();
 
     await page.waitForTimeout(3000);
 
@@ -196,14 +233,21 @@ test.describe("Order Management End-to-End Testing", () => {
       waitUntil: "networkidle",
     });
 
-    const orderRow = getOrderRow(page);
+    await page
+      .getByRole("button", {
+        name: /orders/i,
+      })
+      .click()
+      .catch(() => {});
 
-    await expect(orderRow).toBeVisible({
+    const row = getOrderRow();
+
+    await expect(row).toBeVisible({
       timeout: 30000,
     });
 
-    const moveStatus = async (status) => {
-      const button = orderRow.locator(".status-next-btn");
+    const moveStatus = async (expected) => {
+      const button = row.locator(".status-next-btn");
 
       await expect(button).toBeVisible({
         timeout: 30000,
@@ -211,8 +255,8 @@ test.describe("Order Management End-to-End Testing", () => {
 
       await button.click();
 
-      await expect(orderRow.locator(".status-track-label .badge")).toHaveText(
-        new RegExp(status, "i"),
+      await expect(row.locator(".status-track-label .badge")).toHaveText(
+        new RegExp(expected, "i"),
         {
           timeout: 30000,
         },
