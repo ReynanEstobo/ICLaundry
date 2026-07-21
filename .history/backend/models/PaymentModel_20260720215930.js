@@ -31,7 +31,7 @@ export const getPaymentById = async (id) => {
     .from("payments")
     .select("*")
     .eq("id", id)
-    .maybeSingle();
+    .single();
 
   if (error) throw new Error(error.message);
 
