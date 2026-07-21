@@ -58,14 +58,18 @@ export const getPaymentsByOrderId = async (orderId) => {
  */
 export const createPayment = async (paymentData) => {
   const { data, error } = await supabase
+
     .from("payments")
+
     .insert(paymentData)
-    .select()
-    .single();
 
-  if (error) throw new Error(error.message);
+    .select();
 
-  return data;
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.[0];
 };
 
 /**

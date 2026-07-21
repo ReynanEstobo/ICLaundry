@@ -1,43 +1,132 @@
-export default function CustomerTable({
-  customers = [],
-}) {
+// frontend/src/components/CustomerTable.jsx
+
+const CustomerTable = ({ customers = [], onEdit, onDelete }) => {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Email</th>
-          <th>Added Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+    <div
+      className="
+        overflow-x-auto
+        rounded-lg
+        border
+        bg-white
+      "
+    >
+      <table
+        className="
+          min-w-full
+          text-sm
+        "
+      >
+        <thead>
+          <tr
+            className="
+              border-b
+              bg-gray-50
+              text-left
+            "
+          >
+            <th className="px-4 py-3">Customer Name</th>
 
-      <tbody>
-        {customers.map((customer) => (
-          <tr key={customer.id}>
-            <td>
-              {customer.fullName}
-            </td>
+            <th className="px-4 py-3">Phone</th>
 
-            <td>
-              {customer.phone}
-            </td>
+            <th className="px-4 py-3">Email</th>
 
-            <td>
-              {customer.email}
-            </td>
+            <th className="px-4 py-3">Address</th>
 
-            <td>
-              {customer.addedDate}
-            </td>
+            <th className="px-4 py-3">Notes</th>
 
-            <td>
-              Actions
-            </td>
+            <th className="px-4 py-3">Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {customers.length > 0 ? (
+            customers.map((customer) => (
+              <tr
+                key={customer.id}
+                className="
+                  border-b
+                  hover:bg-gray-50
+                "
+              >
+                <td
+                  className="
+                    px-4
+                    py-3
+                    font-medium
+                  "
+                >
+                  {customer.name}
+                </td>
+
+                <td className="px-4 py-3">{customer.phone || "-"}</td>
+
+                <td className="px-4 py-3">{customer.email || "-"}</td>
+
+                <td className="px-4 py-3">{customer.address || "-"}</td>
+
+                <td className="px-4 py-3">{customer.notes || "-"}</td>
+
+                <td className="px-4 py-3">
+                  <div
+                    className="
+                      flex
+                      gap-2
+                    "
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onEdit(customer)}
+                      className="
+                        rounded
+                        bg-yellow-500
+                        px-3
+                        py-1
+                        text-xs
+                        text-white
+                        hover:bg-yellow-600
+                      "
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onDelete(customer)}
+                      className="
+                        rounded
+                        bg-red-500
+                        px-3
+                        py-1
+                        text-xs
+                        text-white
+                        hover:bg-red-600
+                      "
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="6"
+                className="
+                  px-4
+                  py-8
+                  text-center
+                  text-gray-500
+                "
+              >
+                No customers found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
-}
+};
+
+export default CustomerTable;

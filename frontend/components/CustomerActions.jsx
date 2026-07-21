@@ -1,41 +1,23 @@
-export default function CustomerActions({
-  setShowModal,
-  setEditing,
-  onDelete,
-}) {
-  const handleAddCustomer = () => {
-    setEditing(false);
-    setShowModal(true);
-  };
-
-  const handleEditCustomer = () => {
-    setEditing(true);
-    setShowModal(true);
-  };
-
-  const handleDeleteCustomer = () => {
-    onDelete?.();
-  };
-
+const CustomerActions = ({ onAddCustomer }) => {
   return (
-    <>
-      <button
-        onClick={handleAddCustomer}
-      >
-        Add Customer
-      </button>
-
-      <button
-        onClick={handleEditCustomer}
-      >
-        Edit Customer
-      </button>
-
-      <button
-        onClick={handleDeleteCustomer}
-      >
-        Delete
-      </button>
-    </>
+    <button
+      type="button"
+      onClick={onAddCustomer}
+      className="
+        rounded-lg
+        bg-blue-600
+        px-4
+        py-2
+        text-sm
+        font-medium
+        text-white
+        transition
+        hover:bg-blue-700
+      "
+    >
+      + Add Customer
+    </button>
   );
-}
+};
+
+export default CustomerActions;
