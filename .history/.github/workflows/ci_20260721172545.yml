@@ -88,62 +88,64 @@ jobs:
   # ─────────────────────────────────────────────
   # 3. E2E Tests
   # ─────────────────────────────────────────────
+  # ─────────────────────────────────────────────
+  # 3. PLAYWRIGHT E2E TESTS
+  # ─────────────────────────────────────────────
+
   playwright-e2e:
-    name: Playwright E2E
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: frontend
+  name: Playwright E2E
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+  timeout-minutes: 20
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            frontend/package-lock.json
-            backend/package-lock.json
+  defaults:
+    run:
+      working-directory: frontend
 
-      - name: Install frontend dependencies
-        run: npm ci
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install backend dependencies
-        run: npm ci
-        working-directory: backend
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Chromium and system dependencies
-        run: npx playwright install --with-deps chromium
+    - name: Install frontend dependencies
+      run: npm ci
 
-      - name: Run Playwright E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
-          WATERWISE_E2E: true
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    - name: Install Playwright browser
+      run: npx playwright install --with-deps chromium
 
-      - name: Upload Playwright HTML report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: frontend/playwright-report
-          if-no-files-found: ignore
-          retention-days: 7
+    # START VITE SERVER
+    - name: Start frontend server
+      run: |
+        npm run dev -- --host 0.0.0.0 > vite.log 2>&1 &
+        npx wait-on http://127.0.0.1:5173
 
-      - name: Upload Playwright failure artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-test-results
-          path: frontend/test-results
-          if-no-files-found: ignore
-          retention-days: 7
+    # DEBUG CHECK
+    - name: Verify frontend is running
+      run: |
+        curl http://127.0.0.1:5173
 
-  # ─────────────────────────────────────────────
-  # 4. Final
-  # ─────────────────────────────────────────────
+    # RUN TEST
+    - name: Run Playwright
+      run: npm run test:e2e
+      env:
+        CI: true
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: frontend/playwright-report
+
+    - name: Upload Vite log
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: vite-log
+        path: frontend/vite.log
