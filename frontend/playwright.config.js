@@ -1,35 +1,57 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const frontendURL = process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:5173";
+
 export default defineConfig({
   testDir: "./tests/e2e",
 
+  // Make sure only real Playwright files are collected.
+  testMatch: "**/*.spec.js",
+
   fullyParallel: false,
 
-  forbidOnly: !!process.env.CI,
+  forbidOnly: Boolean(process.env.CI),
 
   retries: process.env.CI ? 2 : 0,
 
   workers: process.env.CI ? 1 : undefined,
 
-  reporter: [
-    ["list"],
-    [
-      "html",
-      {
-        outputFolder: "playwright-report",
-        open: "never",
-      },
-    ],
-  ],
+  timeout: 120_000,
+
+  expect: {
+    timeout: 30_000,
+  },
+
+  reporter: process.env.CI
+    ? [
+        ["list"],
+        [
+          "html",
+          {
+            outputFolder: "playwright-report",
+            open: "never",
+          },
+        ],
+      ]
+    : [
+        ["list"],
+        [
+          "html",
+          {
+            outputFolder: "playwright-report",
+            open: "never",
+          },
+        ],
+      ],
 
   use: {
-    /*
-     * IMPORTANT FOR GITHUB ACTIONS
-     * Run chromium without GUI
-     */
+    baseURL: frontendURL,
+
     headless: true,
 
-    baseURL: "http://127.0.0.1:5173",
+    actionTimeout: 30_000,
+
+    navigationTimeout: 60_000,
 
     trace: "retain-on-failure",
 
@@ -39,13 +61,17 @@ export default defineConfig({
   },
 
   webServer: {
-    command: "npm run dev -- --host 0.0.0.0",
+    command: "npm run dev -- --host 127.0.0.1 --port 5173",
 
-    url: "http://127.0.0.1:5173",
+    url: frontendURL,
 
     reuseExistingServer: !process.env.CI,
 
-    timeout: 120000,
+    timeout: 120_000,
+
+    stdout: "pipe",
+
+    stderr: "pipe",
   },
 
   projects: [
@@ -57,4 +83,6 @@ export default defineConfig({
       },
     },
   ],
+
+  outputDir: "test-results",
 });
