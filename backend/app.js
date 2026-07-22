@@ -11,6 +11,7 @@ import analyticsRoutes from "./routes/AnalyticsRoutes.js";
 import decisionSupportRoutes from "./routes/DecisionSupportRoutes.js";
 import customerRoutes from "./routes/CustomerRoutes.js";
 import inventoryRoutes from "./routes/InventoryRoutes.js";
+import settingsRoutes from "./routes/SettingsRoutes.js";
 
 const app = express();
 
@@ -45,5 +46,7 @@ app.use("/api/decision-support", decisionSupportRoutes);
 app.use("/api/customers", customerRoutes);
 
 app.use("/api/inventory", inventoryRoutes);
+
+app.use("/api/settings", settingsRoutes);
 
 export default app;

@@ -36,7 +36,7 @@ Status: ${response?.status()}`,
 
     await expect(page.locator("body")).toBeVisible();
 
-    for (const destination of ["Analytics", "Orders", "Customers", "Staff", "Inventory"]) {
+    for (const destination of ["Analytics", "Orders", "Customers", "Staff", "Inventory", "Settings"]) {
       await expect(page.getByRole("button", { name: destination, exact: true })).toBeVisible({ timeout: 30_000 });
     }
 

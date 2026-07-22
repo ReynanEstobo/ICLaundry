@@ -49,7 +49,7 @@ test.describe("Staff Management Workflow", () => {
     await page.getByLabel("Role", { exact: true }).selectOption("admin"); await expect(page.getByText("No staff members found")).toBeVisible();
     await page.getByRole("button", { name: "Clear" }).click(); await page.getByLabel("Branch", { exact: true }).selectOption("branch-north"); await expect(page.getByText("2 staff members")).toBeVisible();
 
-    page.once("dialog", (dialog) => dialog.accept()); await page.getByRole("button", { name: "Delete Cara Reyes" }).click(); await expect(page.getByText("Cara Reyes")).not.toBeVisible(); await expect(page.getByRole("status")).toContainText("deleted successfully");
+    page.once("dialog", (dialog) => dialog.accept()); await page.getByRole("button", { name: "Delete Cara Reyes" }).click(); await expect(page.locator(".staff-table").getByText("Cara Reyes")).not.toBeVisible(); await expect(page.getByRole("status")).toContainText("deleted successfully");
     expect(requests.some((item) => item.method === "PUT" && item.body.position === "Senior Attendant")).toBeTruthy(); expect(requests.some((item) => item.method === "DELETE" && item.url.endsWith("staff-3"))).toBeTruthy();
   });
 
